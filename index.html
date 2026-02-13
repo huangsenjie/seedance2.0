@@ -3,34 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seedance 2.0 - 长运行代理提示词生成器</title>
-    <meta name="description" content="基于 Anthropic 长运行代理模式的专业 AI 提示词生成工具">
-    <meta name="keywords" content="AI Agent, Prompt Generator, Claude, Anthropic, Long-running Agents">
+    <title>Seedance 2.0 提示词生成器 - 官方手册版</title>
+    <meta name="description" content="基于即梦 Seedance 2.0 官方手册的专业提示词生成工具，支持首尾帧、全能参考、多模态输入">
     <style>
         :root {
-            --primary: #7c3aed;
-            --primary-dark: #5b21b6;
-            --primary-light: #a78bfa;
-            --secondary: #06b6d4;
-            --bg-dark: #0f0f1a;
-            --bg-card: #1a1a2e;
-            --bg-input: #252540;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border: #374151;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }
-
-        [data-theme="light"] {
-            --bg-dark: #f8fafc;
-            --bg-card: #ffffff;
-            --bg-input: #f1f5f9;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
+            --primary: #8B5CF6;
+            --primary-dark: #6A3E8F;
+            --primary-light: #A78BFA;
+            --secondary: #06B6D4;
+            --bg-dark: #0D0F23;
+            --bg-card: #1A1F35;
+            --bg-input: #2D2B3A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+            --text-muted: #6B7280;
+            --border: #2D3A4E;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
         }
 
         * {
@@ -40,7 +30,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
             background: var(--bg-dark);
             color: var(--text-primary);
             min-height: 100vh;
@@ -49,24 +39,24 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
 
         header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             padding: 2rem;
-            background: linear-gradient(135deg, var(--bg-card), var(--bg-input));
-            border-radius: 1rem;
-            border: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(106, 13, 173, 0.1));
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         h1 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -74,137 +64,85 @@
 
         .subtitle {
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
-        .tag {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            margin-top: 0.5rem;
-        }
-
-        .main-grid {
+        .main-layout {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 350px 1fr;
             gap: 2rem;
         }
 
         @media (max-width: 1024px) {
-            .main-grid {
+            .main-layout {
                 grid-template-columns: 1fr;
             }
         }
 
-        .card {
+        .sidebar {
             background: var(--bg-card);
             border-radius: 1rem;
             border: 1px solid var(--border);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .card-header {
             padding: 1.5rem;
-            background: rgba(124, 58, 237, 0.1);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
         }
 
-        .card-header h2 {
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .form-group {
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
             margin-bottom: 1.5rem;
+            color: var(--primary-light);
         }
 
-        .form-group label {
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
             display: block;
             margin-bottom: 0.5rem;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.85rem;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
             width: 100%;
             padding: 0.75rem 1rem;
             background: var(--bg-input);
             border: 1px solid var(--border);
             border-radius: 0.5rem;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: all 0.2s;
             font-family: inherit;
         }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 0 3px rgba(124, 58, 237, 0.2);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
         }
 
-        .form-group textarea {
-            min-height: 120px;
+        .input-group textarea {
+            min-height: 100px;
             resize: vertical;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        @media (max-width: 640px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--bg-input);
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .checkbox-item:hover {
-            background: rgba(124, 58, 237, 0.2);
-            border-color: var(--primary);
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            width: auto;
-            cursor: pointer;
         }
 
         .btn {
@@ -223,15 +161,14 @@
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
         }
 
         .btn-secondary {
@@ -241,21 +178,8 @@
         }
 
         .btn-secondary:hover {
-            background: rgba(124, 58, 237, 0.1);
+            background: var(--primary);
             border-color: var(--primary);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-full {
-            width: 100%;
         }
 
         .btn-group {
@@ -265,22 +189,25 @@
             flex-wrap: wrap;
         }
 
-        .output-section {
-            margin-top: 2rem;
+        .main-content {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
         }
 
-        .output-tabs {
+        .tabs {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             background: var(--bg-input);
             padding: 0.5rem;
             border-radius: 0.5rem;
             overflow-x: auto;
         }
 
-        .output-tab {
-            padding: 0.5rem 1rem;
+        .tab-btn {
+            padding: 0.5rem 1.25rem;
             background: transparent;
             border: none;
             color: var(--text-secondary);
@@ -291,22 +218,22 @@
             white-space: nowrap;
         }
 
-        .output-tab:hover {
+        .tab-btn:hover {
             color: var(--text-primary);
         }
 
-        .output-tab.active {
+        .tab-btn.active {
             background: var(--primary);
             color: white;
         }
 
-        .output-content {
+        .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
-        .output-content.active {
+        .tab-content.active {
             display: block;
-            animation: fadeIn 0.3s ease;
         }
 
         @keyframes fadeIn {
@@ -314,523 +241,264 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .code-block {
-            background: #1e1e2e;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .code-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .code-header .filename {
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .code-content {
-            padding: 1rem;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            color: #e2e8f0;
-            line-height: 1.5;
-        }
-
-        .code-content::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        .code-content::-webkit-scrollbar-track {
-            background: var(--bg-input);
-        }
-
-        .code-content::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        .feature-preview {
-            background: var(--bg-input);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .feature-preview h3 {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 0.375rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        .feature-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .feature-status.pending {
-            background: var(--warning);
-        }
-
-        .export-section {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .export-section h3 {
+        .prompt-output {
+            background: #1A1F2E;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
             margin-bottom: 1rem;
         }
 
-        .export-options {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
+        .prompt-output textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 1rem;
+            background: #12141D;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: #E5E7EB;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: vertical;
         }
 
-        .info-box {
+        .action-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .tips-box {
             background: rgba(6, 182, 212, 0.1);
             border-left: 3px solid var(--secondary);
             padding: 1rem;
             border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
+            margin-top: 1rem;
             font-size: 0.9rem;
         }
 
-        .info-box strong {
+        .tips-box h4 {
             color: var(--secondary);
-        }
-
-        .template-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .template-option {
-            padding: 1rem;
-            background: var(--bg-input);
-            border: 2px solid transparent;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .template-option:hover {
-            border-color: var(--primary);
-            background: rgba(124, 58, 237, 0.1);
-        }
-
-        .template-option.selected {
-            border-color: var(--primary);
-            background: rgba(124, 58, 237, 0.2);
-        }
-
-        .template-option h4 {
+            margin-bottom: 0.5rem;
             font-size: 0.95rem;
-            margin-bottom: 0.25rem;
         }
 
-        .template-option p {
-            font-size: 0.8rem;
+        .tips-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tips-box li {
+            padding: 0.375rem 0;
             color: var(--text-secondary);
         }
 
-        .accordion {
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            overflow: hidden;
-            margin-bottom: 1rem;
+        .tips-box li::before {
+            content: '•';
+            color: var(--secondary);
+            margin-right: 0.5rem;
         }
 
-        .accordion-header {
-            padding: 1rem;
-            background: var(--bg-input);
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 500;
-            user-select: none;
-        }
-
-        .accordion-header:hover {
-            background: rgba(124, 58, 237, 0.1);
-        }
-
-        .accordion-content {
-            display: none;
-            padding: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .accordion-content.open {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; max-height: 0; }
-            to { opacity: 1; max-height: 500px; }
-        }
-
-        .accordion-arrow {
-            transition: transform 0.2s;
-        }
-
-        .accordion-header.open .accordion-arrow {
-            transform: rotate(180deg);
-        }
-
-        .progress-indicator {
-            display: flex;
+        .reference-link {
+            display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            color: var(--secondary);
+            text-decoration: none;
             padding: 0.5rem 1rem;
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 999px;
-            font-size: 0.85rem;
-            color: var(--success);
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: 0.5rem;
+            transition: all 0.2s;
         }
 
-        .theme-toggle {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
+        .reference-link:hover {
+            background: var(--primary);
         }
 
         footer {
             margin-top: 3rem;
             padding: 2rem;
             text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
             border-top: 1px solid var(--border);
-        }
-
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        #outputPlaceholder {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-        }
-
-        #outputPlaceholder .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .loading {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary);
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body data-theme="dark">
-    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题" aria-label="切换主题">
-        <span id="themeIcon">🌙</span>
-    </button>
+<body>
+    <header>
+        <h1>Seedance 2.0 提示词生成器</h1>
+        <p class="subtitle">基于即梦官方手册 · 全新多模态创作体验</p>
+    </header>
 
     <div class="container">
-        <header>
-            <h1>Seedance 2.0 提示词生成器</h1>
-            <p class="subtitle">基于 Anthropic 长运行代理模式的专业提示词生成工具</p>
-            <span class="tag">v2.0</span>
-        </header>
+        <div class="main-layout">
+            <div class="sidebar">
+                <div class="sidebar-title">🎬 即梦 Seedance 2.0 官方手册版</div>
 
-        <div class="main-grid">
-            <div class="card">
-                <div class="card-header">
-                    <h2><span>⚙️</span> 配置参数</h2>
+                <div class="sidebar-section">
+                    <h3>📄 素材上传 ( @素材名)</h3>
+                    <div class="tips-box">
+                        <h4>⚠️ 上传规则</h4>
+                        <ul>
+                            <li><strong>真人素材：</strong>仅用于动作、运镜参考</li>
+                            <li><strong>人脸素材：</strong>仅用于首帧定画面风格</li>
+                            <li>禁止使用真人素材直接生成画面内容</li>
+                            <li>违规可能导致生成失败或账号限制</li>
+                        </ul>
+                    </div>
+                    <div class="input-group">
+                        <textarea id="materialPromptOutput" placeholder="按照官方 @素材名 格式输入素材引用提示词...
+
+示例：
+@图片1 - 作为首帧图片
+@视频1 - 参考镜头语言：快速移动、缓慢推拉
+@音频1 - 背景音乐：舒缓放松
+
+注意：每个素材最多使用一次，总上传不超过9个文件"></textarea>
+                        <div class="action-bar">
+                            <button class="btn btn-primary" onclick="copyMaterialPrompt()">
+                                📋 复制素材提示词
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="info-box">
-                        <strong>长运行代理模式：</strong>使用 Initializer Agent 设置环境，Coding Agent 进行增量开发，确保多会话一致性。
+
+                <div class="sidebar-section">
+                    <h3>📹 视频基础</h3>
+                    <div class="input-group">
+                        <label>视频时长 (2-15秒)</label>
+                        <input type="range" id="videoDuration" min="2" max="15" value="5" step="1" oninput="updateRangeValue('videoDuration')">
+                        <span class="range-value" id="videoDurationValue">5s</span>
                     </div>
-
-                    <div class="form-group">
-                        <label>快速模板</label>
-                        <div class="template-selector">
-                            <div class="template-option selected" data-template="webapp" onclick="selectTemplate('webapp')">
-                                <h4>🌐 Web 应用</h4>
-                                <p>React/Vue/Next.js 应用</p>
-                            </div>
-                            <div class="template-option" data-template="api" onclick="selectTemplate('api')">
-                                <h4>🔌 API 服务</h4>
-                                <p>REST/GraphQL API</p>
-                            </div>
-                            <div class="template-option" data-template="cli" onclick="selectTemplate('cli')">
-                                <h4>💻 CLI 工具</h4>
-                                <p>命令行应用</p>
-                            </div>
-                            <div class="template-option" data-template="data" onclick="selectTemplate('data')">
-                                <h4>📊 数据处理</h4>
-                                <p>数据管道/分析</p>
-                            </div>
-                        </div>
+                    <div class="input-group">
+                        <label>视频分辨率</label>
+                        <select id="videoResolution">
+                            <option value="1080p">1080p (1920x1080)</option>
+                            <option value="720p" selected>720p (1280x720)</option>
+                            <option value="480p">480p (640x480)</option>
+                        </select>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label for="projectName">项目名称</label>
-                        <input type="text" id="projectName" placeholder="例如：my-awesome-app" value="seedance2.0-prompt-generator">
+                <div class="sidebar-section">
+                    <h3>🎵 音频设置</h3>
+                    <div class="input-group">
+                        <label>背景音乐</label>
+                        <select id="bgmType">
+                            <option value="none">无音频</option>
+                            <option value="epic" selected>史诗大气</option>
+                            <option value="chill">舒缓放松</option>
+                            <option value="upbeat">轻快节奏</option>
+                            <option value="lo-fi">Lo-fi 低保真</option>
+                            <option value="cinematic">电影感</option>
+                            <option value="cyberpunk">赛博朋克</option>
+                        </select>
                     </div>
-
-                    <div class="form-group">
-                        <label for="projectDescription">项目描述</label>
-                        <textarea id="projectDescription" placeholder="描述您想要构建的项目...">一个现代化的 Web 应用程序，提供专业的 AI 提示词生成功能，支持多种模板和导出格式。</textarea>
+                    <div class="input-group">
+                        <label>视频分辨率</label>
+                        <select id="videoResolution">
+                            <option value="1080p">1080p (1920x1080)</option>
+                            <option value="720p" selected>720p (1280x720)</option>
+                            <option value="480p">480p (640x480)</option>
+                        </select>
                     </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="techStack">技术栈</label>
-                            <select id="techStack" onchange="handleTechStackChange()">
-                                <option value="nextjs">Next.js + TypeScript</option>
-                                <option value="react">React + TypeScript</option>
-                                <option value="vue">Vue 3 + TypeScript</option>
-                                <option value="python">Python + FastAPI</option>
-                                <option value="nodejs">Node.js + Express</option>
-                                <option value="rust">Rust + Axum</option>
-                                <option value="go">Go + Gin</option>
-                                <option value="static" selected>原生 HTML + CSS + JS</option>
-                                <option value="custom">自定义</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="model">目标模型</label>
-                            <select id="model">
-                                <option value="claude-opus-4.6">Claude Opus 4.6</option>
-                                <option value="claude-sonnet-4.2" selected>Claude Sonnet 4.2</option>
-                                <option value="claude-haiku-4.1">Claude Haiku 4.1</option>
-                                <option value="gpt-4o">GPT-4o</option>
-                                <option value="gpt-4o-mini">GPT-4o Mini</option>
-                                <option value="generic">通用模型</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="customTechGroup" style="display:none;">
-                        <label for="customTechStack">自定义技术栈</label>
-                        <input type="text" id="customTechStack" placeholder="例如：Python + Django + PostgreSQL">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="features">核心功能列表（每行一个功能）</label>
-                        <textarea id="features" placeholder="输入项目的核心功能..." spellcheck="false">响应式设计和暗色主题
-项目配置表单
-初始化代理提示词生成
-编码代理提示词生成
-功能列表 JSON 生成
-配置文件模板生成
-导出 JSON 格式
-导出 Markdown 格式
-复制到剪贴板功能
-模板预设选择
-高级配置面板</textarea>
-                    </div>
-
-                    <div class="accordion">
-                        <div class="accordion-header" onclick="toggleAccordion(this)">
-                            <span>高级配置</span>
-                            <span class="accordion-arrow">▼</span>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="form-group">
-                                <label>附加能力</label>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="includeTesting" checked>
-                                        自动化测试
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="includeDocs" checked>
-                                        文档生成
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="includeGit" checked>
-                                        Git 集成
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="includeCI">
-                                        CI/CD 配置
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="includeMonitoring">
-                                        监控日志
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="includeSecurity">
-                                        安全检查
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="initCommand">启动命令</label>
-                                    <input type="text" id="initCommand" placeholder="npm run dev" value="python -m http.server 8000">
-                                </div>
-                                <div class="form-group">
-                                    <label for="testCommand">测试命令</label>
-                                    <input type="text" id="testCommand" placeholder="npm test" value="pytest">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="additionalContext">额外上下文</label>
-                                <textarea id="additionalContext" placeholder="添加任何额外的说明或要求..." style="min-height: 80px;">遵循最佳实践，确保代码可维护性。使用语义化 HTML 和可访问性标准。</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary btn-full" onclick="generatePrompts()">
-                        <span>✨</span> 生成提示词
-                    </button>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h2><span>📝</span> 生成的提示词</h2>
-                    <div id="outputStatus" class="progress-indicator" style="display:none;">
-                        已生成
-                    </div>
+            <div class="main-content">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('prompt')">📝 提示词生成</button>
+                    <button class="tab-btn" onclick="switchTab('manual')">📖 手动输入</button>
                 </div>
-                <div class="card-body">
-                    <div id="outputPlaceholder">
-                        <div class="icon">🎯</div>
-                        <p>配置参数后点击"生成提示词"开始</p>
-                    </div>
 
-                    <div id="outputSection" class="output-section" style="display:none;">
-                        <div class="output-tabs">
-                            <button class="output-tab active" data-tab="initializer" onclick="switchTab('initializer')">Initializer Agent</button>
-                            <button class="output-tab" data-tab="coding" onclick="switchTab('coding')">Coding Agent</button>
-                            <button class="output-tab" data-tab="files" onclick="switchTab('files')">配置文件</button>
-                        </div>
-
-                        <div id="tab-initializer" class="output-content active">
-                            <div class="code-block">
-                                <div class="code-header">
-                                    <span class="filename">initializer_prompt.txt</span>
-                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" onclick="copyToClipboard('initializerOutput')">复制</button>
-                                </div>
-                                <div id="initializerOutput" class="code-content"></div>
-                            </div>
-                        </div>
-
-                        <div id="tab-coding" class="output-content">
-                            <div class="code-block">
-                                <div class="code-header">
-                                    <span class="filename">coding_agent_prompt.txt</span>
-                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" onclick="copyToClipboard('codingOutput')">复制</button>
-                                </div>
-                                <div id="codingOutput" class="code-content"></div>
-                            </div>
-                        </div>
-
-                        <div id="tab-files" class="output-content">
-                            <div class="code-block" style="margin-bottom: 1rem;">
-                                <div class="code-header">
-                                    <span class="filename">feature_list.json</span>
-                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" onclick="copyToClipboard('featureListOutput')">复制</button>
-                                </div>
-                                <div id="featureListOutput" class="code-content"></div>
-                            </div>
-
-                            <div class="code-block" style="margin-bottom: 1rem;">
-                                <div class="code-header">
-                                    <span class="filename">init.sh</span>
-                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" onclick="copyToClipboard('initScriptOutput')">复制</button>
-                                </div>
-                                <div id="initScriptOutput" class="code-content"></div>
-                            </div>
-
-                            <div class="code-block">
-                                <div class="code-header">
-                                    <span class="filename">claude-progress.txt</span>
-                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" onclick="copyToClipboard('progressOutput')">复制</button>
-                                </div>
-                                <div id="progressOutput" class="code-content"></div>
-                            </div>
+                <!-- 自动生成标签页 -->
+                <div id="tab-prompt" class="tab-content active">
+                    <div class="prompt-output">
+                        <textarea id="promptOutput" placeholder="点击「生成提示词」按钮，或使用手动输入..."></textarea>
+                        <div class="action-bar">
+                            <button class="btn btn-primary" onclick="generatePrompt()">
+                                ✨ 生成提示词
+                            </button>
                         </div>
                     </div>
 
-                    <div id="exportSection" class="export-section" style="display:none;">
-                        <h3>📦 导出选项</h3>
-                        <div class="export-options">
-                            <button class="btn btn-secondary" onclick="exportAsJSON()">
-                                <span>📋</span> 导出 JSON
-                            </button>
-                            <button class="btn btn-secondary" onclick="exportAsMarkdown()">
-                                <span>📝</span> 导出 Markdown
-                            </button>
-                            <button class="btn btn-success" onclick="downloadAllFiles()">
-                                <span>📁</span> 下载所有文件
-                            </button>
+                    <!-- 手动输入标签页 -->
+                    <div id="tab-manual" class="tab-content">
+                        <div class="tips-box">
+                            <h4>💡 提示词结构说明</h4>
+                            <ul>
+                                <li><strong>描述部分：</strong>描述想要生成的画面内容、镜头语言、氛围等</li>
+                                <li><strong>素材引用：</strong>使用 @素材名 格式，如 @图片1、@视频1、@音频1</li>
+                                <li><strong>时长控制：</strong>可在描述中指定，如"持续5秒"</li>
+                                <li><strong>风格关键词：</strong>如"史诗大气""轻快节奏""电影感"等</li>
+                            </ul>
+                        </div>
+                        <div class="prompt-output">
+                            <textarea id="manualPrompt" placeholder="在此输入完整的 Seedance 2.0 提示词...
+
+示例：
+# 视频设置
+- 时长: 8秒
+- 分辨率: 720p
+- 分辨率: 1080p (1920x1080)
+- 分辨率: 480p (640x480)
+
+# 音频设置
+- 背景音乐: 史诗大气
+- 分辨率: 1080p (1920x1080)
+
+# 描述
+创作一个史诗大气的短视频。
+使用史诗大气的背景音乐。
+运镜采用电影级别手法，包含推拉摇移，创造视觉冲击力。
+节奏富有变化，从慢到快再到高潮。
+展示Seedance 2.0的强大创作能力。
+"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 使用技巧标签页 -->
+                    <div id="tab-tips" class="tab-content">
+                        <div class="tips-box">
+                            <h4>📚 官方资源</h4>
+                            <ul>
+                                <li><a href="https://bytedance.larkoffice.com/wiki/A5RHwWhoBiOnjukIIw6cu5ybnXQ" target="_blank" class="reference-link">Seedance 2.0 官方手册</a></li>
+                                <li><a href="https://jimeng.jianying.com/" target="_blank" class="reference-link">即梦官方网站</a></li>
+                                <li><a href="https://bytedance.larkoffice.com/wiki/A5RHwWhoBiOnjukIIw6cu5ybnXQ" target="_blank" class="reference-link">体验中心</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="tips-box">
+                            <h4>💡 高质量生成技巧</h4>
+                            <ul>
+                                <li><strong>参考能力：</strong>用一张图定下画面风格</li>
+                                <li><strong>视频参考：</strong>指定镜头语言、复杂动作节奏</li>
+                                <li><strong>视频延长：</strong>支持平滑延长、连续镜头生成</li>
+                                <li><strong>情绪演绎：</strong>情感表达更准确</li>
+                                <li><strong>编辑能力：</strong>角色更替、删减、增加</li>
+                            </ul>
+                        </div>
+
+                        <div class="tips-box">
+                            <h4>🎯 经典 Case 示例</h4>
+                            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                点击下方按钮加载对应 Case 的提示词模板，然后修改参数生成：
+                            </p>
+                            <div class="btn-group">
+                                <button class="btn btn-secondary" onclick="loadCase('epic')">
+                                    🎬 史诗大气 Case
+                                </button>
+                                <button class="btn btn-secondary" onclick="loadCase('vlog')">
+                                    🌐 Vlog 日常 Case
+                                </button>
+                                <button class="btn btn-secondary" onclick="loadCase('cinematic')">
+                                    🎥 电影级 Case
+                                </button>
+                                <button class="btn btn-secondary" onclick="loadCase('music-video')">
+                                    🎵 音乐视频 Case
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -838,838 +506,228 @@
         </div>
 
         <footer>
-            <p>Seedance 2.0 提示词生成器 | 基于 <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank">Anthropic 长运行代理模式</a></p>
+            <p>
+                Seedance 2.0 提示词生成器 · 基于即梦官方手册<br>
+                <a href="https://bytedance.larkoffice.com/wiki/A5RHwWhoBiOnjukIIw6cu5ybnXQ" target="_blank" style="color: var(--primary);">官方手册</a>
+            </p>
         </footer>
-    </div>
 
-    <script>
-        // State management
-        let currentTemplate = 'webapp';
-        let generatedData = null;
+        <script>
+        // State
+        let currentTab = 'prompt';
 
-        // Template configurations
-        const templates = {
-            webapp: {
-                techStack: 'react',
-                initCommand: 'npm run dev',
-                testCommand: 'npm test',
-                features: `用户认证和授权
-响应式 UI 设计
-暗色/亮色主题
-数据持久化
-API 集成
-实时更新
-表单验证
-错误处理
-加载状态指示
-国际化支持`
-            },
-            api: {
-                techStack: 'python',
-                initCommand: 'uvicorn main:app --reload',
-                testCommand: 'pytest',
-                features: `REST API 端点
-请求验证和序列化
-数据库集成
-JWT 身份验证
-速率限制
-API 文档
-错误处理中间件
-日志记录
-CORS 配置
-性能优化`
-            },
-            cli: {
-                techStack: 'nodejs',
-                initCommand: 'node dist/index.js',
-                testCommand: 'npm test',
-                features: `命令行参数解析
-交互式命令界面
-配置文件管理
-进度显示
-彩色输出
-帮助文档
-插件系统
-错误处理
-日志系统
-自动补全`
-            },
-            data: {
-                techStack: 'python',
-                initCommand: 'python main.py',
-                testCommand: 'pytest',
-                features: `数据读取和解析
-数据清洗和转换
-数据验证
-统计分析
-数据可视化
-数据导出
-增量处理
-错误恢复
-性能监控
-缓存机制`
-            }
-        };
-
-        const techStackNames = {
-            nextjs: 'Next.js + TypeScript',
-            react: 'React + TypeScript',
-            vue: 'Vue 3 + TypeScript',
-            python: 'Python + FastAPI',
-            nodejs: 'Node.js + Express',
-            rust: 'Rust + Axum',
-            go: 'Go + Gin',
-            static: '原生 HTML + CSS + JavaScript',
-            custom: '自定义'
-        };
-
-        // Template selection
-        function selectTemplate(templateName) {
-            currentTemplate = templateName;
-            document.querySelectorAll('.template-option').forEach(el => {
-                el.classList.remove('selected');
-            });
-            document.querySelector(`[data-template="${templateName}"]`).classList.add('selected');
-
-            const template = templates[templateName];
-            if (template) {
-                document.getElementById('techStack').value = template.techStack;
-                document.getElementById('initCommand').value = template.initCommand;
-                document.getElementById('testCommand').value = template.testCommand;
-                document.getElementById('features').value = template.features;
-
-                const projectNames = {
-                    webapp: 'my-webapp',
-                    api: 'my-api',
-                    cli: 'my-cli-tool',
-                    data: 'my-data-pipeline'
-                };
-                document.getElementById('projectName').value = projectNames[templateName] || 'my-project';
-            }
-        }
-
-        // Accordion toggle
-        function toggleAccordion(header) {
-            header.classList.toggle('open');
-            const content = header.nextElementSibling;
-            content.classList.toggle('open');
+        // Range value update
+        function updateRangeValue(id) {
+            const value = document.getElementById(id).value;
+            const suffix = id.includes('Duration') ? 's' : '';
+            document.getElementById(id + 'Value').textContent = value + suffix;
         }
 
         // Tab switching
         function switchTab(tabName) {
-            document.querySelectorAll('.output-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.output-content').forEach(content => {
-                content.classList.remove('active');
-            });
-
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
             document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
-        // Copy to clipboard
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            navigator.clipboard.writeText(element.textContent).then(() => {
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = '已复制!';
-                setTimeout(() => btn.textContent = originalText, 2000);
-            }).catch(err => {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = element.textContent;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            });
-        }
-
-        // Generate prompts
-        function generatePrompts() {
-            const projectName = document.getElementById('projectName').value.trim() || 'my-project';
-            const projectDescription = document.getElementById('projectDescription').value.trim();
-            const techStack = document.getElementById('techStack').value;
-            const techStackName = techStackNames[techStack] || document.getElementById('customTechStack').value || techStack;
-            const model = document.getElementById('model').value;
-            const features = document.getElementById('features').value.trim();
-            const initCommand = document.getElementById('initCommand').value.trim() || 'npm run dev';
-            const testCommand = document.getElementById('testCommand').value.trim() || 'npm test';
-            const additionalContext = document.getElementById('additionalContext').value.trim();
-
-            const includeTesting = document.getElementById('includeTesting').checked;
-            const includeDocs = document.getElementById('includeDocs').checked;
-            const includeGit = document.getElementById('includeGit').checked;
-            const includeCI = document.getElementById('includeCI').checked;
-            const includeMonitoring = document.getElementById('includeMonitoring').checked;
-            const includeSecurity = document.getElementById('includeSecurity').checked;
-
-            // Parse features
-            const featureList = features.split('\n')
-                .map(f => f.trim())
-                .filter(f => f.length > 0)
-                .map((f, i) => ({
-                    id: i + 1,
-                    description: f,
-                    passes: false,
-                    category: 'functional'
-                }));
-
-            // Show loading state
-            const btn = document.querySelector('.btn-primary');
-            btn.innerHTML = '<div class="loading"><div class="spinner"></div> 生成中...</div>';
-            btn.disabled = true;
-
-            setTimeout(() => {
-                // Generate Initializer Agent Prompt
-                const initializerPrompt = generateInitializerPrompt({
-                    projectName,
-                    projectDescription,
-                    techStack: techStackName,
-                    model,
-                    features: featureList,
-                    initCommand,
-                    testCommand,
-                    additionalContext,
-                    includeTesting,
-                    includeDocs,
-                    includeGit,
-                    includeCI,
-                    includeMonitoring,
-                    includeSecurity
+        // Copy material prompt
+        function copyMaterialPrompt() {
+            const output = document.getElementById('materialPromptOutput');
+            if (output.value) {
+                navigator.clipboard.writeText(output.value).then(() => {
+                    alert('✅ 素材提示词已复制到剪贴板！');
+                }).catch(() => {
+                    output.select();
+                    document.execCommand('copy');
                 });
-
-                // Generate Coding Agent Prompt
-                const codingPrompt = generateCodingPrompt({
-                    projectName,
-                    projectDescription,
-                    techStack: techStackName,
-                    model,
-                    features: featureList,
-                    initCommand,
-                    testCommand,
-                    additionalContext,
-                    includeTesting,
-                    includeDocs,
-                    includeGit,
-                    includeCI,
-                    includeMonitoring,
-                    includeSecurity
-                });
-
-                // Generate configuration files
-                const featureListJson = generateFeatureListJson(featureList);
-                const initScript = generateInitScript(initCommand, projectName);
-                const progressFile = generateProgressFile(projectName);
-
-                // Store generated data
-                generatedData = {
-                    initializerPrompt,
-                    codingPrompt,
-                    featureListJson,
-                    initScript,
-                    progressFile,
-                    metadata: {
-                        projectName,
-                        projectDescription,
-                        techStack: techStackName,
-                        model,
-                        features: featureList,
-                        generatedAt: new Date().toISOString()
-                    }
-                };
-
-                // Update UI
-                document.getElementById('initializerOutput').textContent = initializerPrompt;
-                document.getElementById('codingOutput').textContent = codingPrompt;
-                document.getElementById('featureListOutput').textContent = featureListJson;
-                document.getElementById('initScriptOutput').textContent = initScript;
-                document.getElementById('progressOutput').textContent = progressFile;
-
-                document.getElementById('outputPlaceholder').style.display = 'none';
-                document.getElementById('outputSection').style.display = 'block';
-                document.getElementById('exportSection').style.display = 'block';
-                document.getElementById('outputStatus').style.display = 'flex';
-
-                btn.innerHTML = '<span>✨</span> 生成提示词';
-                btn.disabled = false;
-            }, 500);
-        }
-
-        // Initializer Prompt Generator
-        function generateInitializerPrompt(config) {
-            const { projectName, projectDescription, techStack, model, features, initCommand, testCommand, additionalContext, includeTesting, includeDocs, includeGit, includeCI, includeMonitoring, includeSecurity } = config;
-
-            return `# Seedance 2.0 Initializer Agent 提示词
-# 目标模型: ${model}
-# 技术栈: ${techStack}
-# 生成时间: ${new Date().toISOString().split('T')[0]}
-
----
-
-## 角色定义
-
-你是一个专业的初始化代理（Initializer Agent），负责为长运行AI代理工作流设置初始环境。你的目标是创建一个结构化的项目环境，使后续的编码代理能够高效地进行增量开发。
-
-## 核心原则
-
-1. **不要尝试一次性实现所有功能** - 你的任务是设置环境，而不是完成项目
-2. **创建可追溯的工件** - 生成清晰的配置文件和文档
-3. **确保环境可用** - 创建一个可运行的项目基础
-4. **结构化状态管理** - 为后续代理提供清晰的状态追踪机制
-
-## 项目信息
-
-**项目名称**: ${projectName}
-
-**项目描述**:
-${projectDescription}
-
-**技术栈**: ${techStack}
-
-**核心功能数量**: ${features.length} 个
-
-## 任务清单
-
-### 1. 创建项目结构
-- 初始化项目基础结构
-- 配置开发环境
-- 设置依赖项和构建工具
-
-### 2. 创建配置文件
-
-#### a) feature_list.json
-创建一个包含所有功能的JSON文件，格式如下：
-\`\`\`json
-${generateFeatureListJson(features)}
-\`\`\`
-
-**重要规则**：
-- 所有功能的 "passes" 字段必须初始化为 false
-- 每个功能必须包含清晰的测试步骤
-- 功能描述应该足够详细，让后续代理能够理解和实现
-- 不要删除或编辑功能，只能更改 "passes" 状态
-
-#### b) init.sh
-创建启动脚本，包含：
-\`\`\`bash
-${generateInitScript(initCommand, projectName)}
-\`\`\`
-
-#### c) claude-progress.txt
-创建进度追踪文件：
-\`\`\`
-${generateProgressFile(projectName)}
-\`\`\`
-
-### 3. 初始化 Git 仓库${includeGit ? '' : ' (如果启用)'}
-
-${includeGit ? `
-运行以下命令：
-\`\`\`bash
-git init
-git add .
-git commit -m "feat: 初始化项目环境和配置文件
-
-- 添加项目基础结构
-- 创建 feature_list.json 包含 ${features.length} 个待实现功能
-- 创建 init.sh 启动脚本
-- 创建 claude-progress.txt 进度追踪文件
-
-技术栈: ${techStack}"
-\`\`\`
-` : ''}
-
-### 4. 验证环境
-运行以下命令验证环境设置：
-- 运行 init.sh 启动开发服务器
-- 验证项目可以正常启动
-- 检查所有配置文件格式正确
-
-## 附加配置
-
-${includeTesting ? '### 自动化测试\\n- 配置测试框架\\n- 创建基础测试结构\\n- 确保测试命令 "' + testCommand + '" 可用\\n' : ''}
-${includeDocs ? '### 文档生成\\n- 设置文档生成工具\\n- 创建 README.md 模板\\n- 配置 API 文档生成（如适用）\\n' : ''}
-${includeCI ? '### CI/CD 配置\\n- 创建 GitHub Actions 或等效的 CI 配置\\n- 配置自动化测试流程\\n- 设置代码质量检查\\n' : ''}
-${includeMonitoring ? '### 监控和日志\\n- 配置日志系统\\n- 设置性能监控\\n- 添加错误追踪集成\\n' : ''}
-${includeSecurity ? '### 安全配置\\n- 设置环境变量管理\\n- 配置安全头\\n- 添加依赖安全检查\\n' : ''}
-
-## 额外上下文
-
-${additionalContext || '无额外上下文'}
-
-## 退出条件
-
-当满足以下条件时，初始化代理可以结束会话：
-
-1. ✅ 项目结构已创建
-2. ✅ feature_list.json 已创建，包含所有功能且 passes = false
-3. ✅ init.sh 已创建并可执行
-4. ✅ claude-progress.txt 已创建
-5. ✅ ${includeGit ? 'Git 仓库已初始化并提交初始代码' : '项目文件已就绪'}
-6. ✅ 开发服务器可以通过 init.sh 启动
-7. ✅ 所有配置文件格式正确
-
-## 重要提醒
-
-- **不要开始实现任何功能** - 只设置环境
-- **不要修改功能列表中的 passes 状态** - 留给编码代理
-- **确保每个功能都有清晰的测试步骤**
-- **创建的文件应该是结构化的，易于后续代理读取和理解**
-
----
-
-*本提示词基于 Anthropic 长运行代理模式生成*
-*参考: https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents*
-`;
-        }
-
-        // Coding Agent Prompt Generator
-        function generateCodingPrompt(config) {
-            const { projectName, projectDescription, techStack, model, features, initCommand, testCommand, additionalContext, includeTesting, includeDocs, includeGit, includeCI, includeMonitoring, includeSecurity } = config;
-
-            return `# Seedance 2.0 Coding Agent 提示词
-# 目标模型: ${model}
-# 技术栈: ${techStack}
-# 生成时间: ${new Date().toISOString().split('T')[0]}
-
----
-
-## 角色定义
-
-你是一个专业的编码代理（Coding Agent），负责在长运行AI代理工作流中进行增量开发。你的目标是每次会话只实现一个功能，确保代码质量，并保持环境在干净状态。
-
-## 核心原则
-
-1. **一次只实现一个功能** - 选择 feature_list.json 中第一个 passes=false 的功能
-2. **彻底测试后才能标记完成** - 不要假设代码正确，必须验证
-3. **保持环境干净** - 每次会话结束时，代码应该可以提交到主分支
-4. **清晰的进度追踪** - 更新 claude-progress.txt 和 feature_list.json
-
-## 项目信息
-
-**项目名称**: ${projectName}
-
-**项目描述**:
-${projectDescription}
-
-**技术栈**: ${techStack}
-
-## 会话启动流程
-
-每个会话开始时，必须按以下顺序执行：
-
-### 1. 获取环境信息
-\`\`\`bash
-pwd
-\`\`\`
-这会告诉你只能编辑此目录中的文件。
-
-### 2. 读取进度文件
-阅读 \`claude-progress.txt\` 文件，了解之前的工作进度。
-
-### 3. 读取功能列表
-阅读 \`feature_list.json\`，找出所有 passes=false 的功能。
-
-### 4. 检查 Git 历史
-\`\`\`bash
-git log --oneline -20
-\`\`\`
-
-### 5. 检查 init.sh 脚本
-阅读 init.sh 了解如何启动开发服务器。
-
-### 6. 启动开发服务器
-\`\`\`bash
-./init.sh
-\`\`\`
-在后台运行或使用另一个终端窗口。
-
-### 7. 验证基础功能
-在实现新功能之前，先验证现有功能是否正常工作。如果发现问题，优先修复。
-
-### 8. 选择功能实现
-选择 feature_list.json 中第一个 passes=false 的功能进行实现。
-
-## 功能实现流程
-
-### 1. 理解功能需求
-- 仔细阅读功能描述
-- 理解测试步骤
-- 考虑与其他功能的依赖关系
-
-### 2. 实现功能
-- 编写代码实现功能
-- 遵循项目的代码风格和最佳实践
-- 确保代码可读性和可维护性
-
-### 3. 测试功能
-- 按照功能列表中的测试步骤逐一验证
-- ${includeTesting ? '编写并运行自动化测试' : '确保功能在各种情况下正常工作'}
-- 测试边界情况和错误处理
-
-**重要警告**：
-- 不要删除或编辑 feature_list.json 中的任何内容
-- 只能修改选中功能的 "passes" 状态
-- 不完全的功能不要标记为通过
-
-### 4. 提交更改
-\`\`\`bash
-git add .
-git commit -m "feat: [功能描述]
-
-- 实现功能：[功能描述]
-- 添加必要的测试
-- 更新 feature_list.json
-
-状态: 功能已测试并通过"
-\`\`\`
-
-## 会话结束流程
-
-在结束会话之前，确保完成以下步骤：
-
-### 1. 更新 claude-progress.txt
-添加本次会话的进度更新：
-\`\`\`
-## [日期时间] - 编码代理会话 N
-
-**实现的功能**: [功能名称]
-
-**所做的更改**:
-- [具体更改 1]
-- [具体更改 2]
-
-**测试结果**: ✅ 通过 / ❌ 失败
-
-**遇到的问题**: [描述任何问题]
-
-**下次计划**: [下次应该做的事情]
-\`\`\`
-
-### 2. 验证环境状态
-- 确保没有未提交的重要更改
-- 确保开发服务器可以正常启动
-- 确保已实现的功能仍然正常工作
-
-### 3. 最后的 Git 提交
-\`\`\`bash
-git add .
-git commit -m "chore: 更新进度文件
-
-- 更新 claude-progress.txt
-- 记录本次会话的工作进度"
-\`\`\`
-
-## 错误处理
-
-### 如果发现之前的功能有问题：
-1. 停止当前功能的实现
-2. 优先修复现有问题
-3. 使用 git 恢复到之前的工作状态（如果需要）
-4. 重新测试修复的功能
-
-### 如果开发服务器无法启动：
-1. 检查最近的代码更改
-2. 使用 git log 找出问题引入的提交
-3. 恢复或修复问题代码
-4. 在实现新功能前确保基础环境可用
-
-## 代码质量标准
-
-### 代码风格
-- 遵循项目现有的代码风格
-- 使用有意义的变量和函数命名
-- 添加必要的注释解释复杂逻辑
-
-### 错误处理
-- 所有外部调用都应该有错误处理
-- 提供清晰的用户错误消息
-- 记录错误日志
-
-### 安全性
-${includeSecurity ? `- 验证所有用户输入\\n- 使用参数化查询防止注入\\n- 不在代码中硬编码敏感信息\\n- 使用环境变量管理配置` : '- 遵循基本的安全实践'}
-
-### 性能
-- 优化数据库查询
-- 实现适当的缓存策略
-- 避免不必要的计算
-- 使用异步操作处理耗时任务
-
-## 额外上下文
-
-${additionalContext || '无额外上下文'}
-
-## 退出条件
-
-当满足以下条件时，编码代理可以结束会话：
-
-1. ✅ 已实现一个功能并完全测试通过
-2. ✅ 已更新 feature_list.json（仅修改选中功能的 passes）
-3. ✅ 已更新 claude-progress.txt
-4. ✅ 代码已提交到 Git
-5. ✅ 环境处于干净状态（没有未提交的重要更改）
-6. ✅ 开发服务器可以正常运行
-
-## 重要提醒
-
-- **一次只实现一个功能** - 即使简单也不要贪多
-- **不要跳过测试** - 不测试的功能不应该标记为通过
-- **保持 commit 消息清晰** - 帮助理解项目历史
-- **不要删除或修改 feature_list.json 的结构** - 只修改 passes 状态
-- **每次会话都要验证基础功能** - 确保没有引入回归
-
----
-
-*本提示词基于 Anthropic 长运行代理模式生成*
-*参考: https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents*
-`;
-        }
-
-        // Feature List JSON Generator
-        function generateFeatureListJson(features) {
-            const featureList = features.map(f => ({
-                id: f.id,
-                category: f.category,
-                description: f.description,
-                steps: [
-                    "验证前置条件",
-                    \`执行\${f.description}相关的操作\`,
-                    "检查预期结果",
-                    "验证边界情况",
-                    "确认功能完整性"
-                ],
-                passes: false
-            }));
-            return JSON.stringify(featureList, null, 2);
-        }
-
-        // Init Script Generator
-        function generateInitScript(initCommand, projectName) {
-            return \`#!/bin/bash
-
-# Seedance 2.0 Initializer Script
-# 项目: \${projectName}
-# 生成时间: \${new Date().toISOString().split('T')[0]}
-
-set -e
-
-echo "🚀 启动 \${projectName} 开发环境..."
-
-# 检查依赖
-if [ -f "package.json" ]; then
-    if [ ! -d "node_modules" ]; then
-        echo "📦 安装依赖..."
-        npm install
-    fi
-elif [ -f "requirements.txt" ]; then
-    if [ ! -d "venv" ]; then
-        echo "📦 创建虚拟环境..."
-        python3 -m venv venv
-    fi
-    echo "📦 安装依赖..."
-    source venv/bin/activate
-    pip install -r requirements.txt
-fi
-
-# 启动开发服务器
-echo "▶️  启动开发服务器..."
-\${initCommand}
-
-echo "✅ 开发环境已启动"
-\`;
-        }
-
-        // Progress File Generator
-        function generateProgressFile(projectName) {
-            return \`# Seedance 2.0 项目进度追踪
-# 项目: \${projectName}
-# 开始时间: \${new Date().toISOString().split('T')[0]}
-
----
-
-## 项目概述
-
-**项目名称**: \${projectName}
-
-**技术栈**: \${document.getElementById('techStack').value}
-
----
-
-## 初始化状态
-
-[初始化完成日期]: \${new Date().toISOString().split('T')[0]}
-
-**初始设置**:
-- ✅ 项目结构已创建
-- ✅ feature_list.json 已创建
-- ✅ init.sh 已创建
-- ✅ claude-progress.txt 已创建
-- ✅ Git 仓库已初始化
-
----
-
-## 功能实现进度
-
-| ID | 功能描述 | 状态 | 完成日期 |
-|----|----------|------|----------|
-\${features.map(f => \`| \${f.id} | \${f.description} | ❌ | - |\`).join('\\n')}
-
----
-
-## 会话日志
-
-等待首次编码代理会话...
-
----
-
-## 注意事项
-
-- 请按顺序实现功能
-- 每个功能实现后必须彻底测试
-- 更新 feature_list.json 中的 passes 状态
-- 记录每个会话的工作内容
-\`;
-        }
-
-        // Export functions
-        function exportAsJSON() {
-            if (!generatedData) return;
-
-            const exportData = {
-                version: '2.0',
-                ...generatedData
-            };
-
-            downloadFile(
-                \`\${generatedData.metadata.projectName}-seedance2.0.json\`,
-                JSON.stringify(exportData, null, 2)
-            );
-        }
-
-        function exportAsMarkdown() {
-            if (!generatedData) return;
-
-            const md = \`# Seedance 2.0 提示词导出
-
-## 项目信息
-
-- **项目名称**: \${generatedData.metadata.projectName}
-- **项目描述**: \${generatedData.metadata.projectDescription}
-- **技术栈**: \${generatedData.metadata.techStack}
-- **目标模型**: \${generatedData.metadata.model}
-- **功能数量**: \${generatedData.metadata.features.length}
-- **生成时间**: \${generatedData.metadata.generatedAt}
-
----
-
-## Initializer Agent 提示词
-
-\`\`\`
-\${generatedData.initializerPrompt}
-\`\`\`
-
----
-
-## Coding Agent 提示词
-
-\`\`\`
-\${generatedData.codingPrompt}
-\`\`\`
-
----
-
-## feature_list.json
-
-\`\`\`json
-\${generatedData.featureListJson}
-\`\`\`
-
----
-
-## init.sh
-
-\`\`\`bash
-\${generatedData.initScript}
-\`\`\`
-
----
-
-## claude-progress.txt
-
-\`\`\`
-\${generatedData.progressFile}
-\`\`\`
-\`;
-
-            downloadFile(
-                \`\${generatedData.metadata.projectName}-seedance2.0.md\`,
-                md
-            );
-        }
-
-        function downloadAllFiles() {
-            if (!generatedData) return;
-
-            const files = [
-                { name: 'initializer_prompt.txt', content: generatedData.initializerPrompt },
-                { name: 'coding_agent_prompt.txt', content: generatedData.codingPrompt },
-                { name: 'feature_list.json', content: generatedData.featureListJson },
-                { name: 'init.sh', content: generatedData.initScript },
-                { name: 'claude-progress.txt', content: generatedData.progressFile }
-            ];
-
-            files.forEach((file, index) => {
-                setTimeout(() => {
-                    downloadFile(file.name, file.content);
-                }, index * 500);
-            });
-        }
-
-        function downloadFile(filename, content) {
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // Tech stack change handler
-        function handleTechStackChange() {
-            const techStack = document.getElementById('techStack').value;
-            const customGroup = document.getElementById('customTechGroup');
-            if (techStack === 'custom') {
-                customGroup.style.display = 'block';
-            } else {
-                customGroup.style.display = 'none';
             }
         }
 
-        // Theme toggle
-        function toggleTheme() {
-            const body = document.body;
-            const currentTheme = body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            body.setAttribute('data-theme', newTheme);
-            document.getElementById('themeIcon').textContent = newTheme === 'dark' ? '🌙' : '☀️';
-            localStorage.setItem('seedance-theme', newTheme);
+        // Case templates
+        const casePrompts = {
+            epic: {
+                duration: 10,
+                resolution: '1080p',
+                bgm: 'epic',
+                description: `# Seedance 2.0 Case: 史诗大气
+
+## 视频设置
+- 视频时长: ${10}秒
+- 分辨率: 1080p (1920x1080)
+
+## 音频配置
+- 背景音乐: 史诗大气型
+
+## 创作要求
+创作一个史诗大气的短视频，展示Seedance 2.0的强大创作能力。
+
+运镜采用电影级别手法，包含推拉摇移，创造视觉冲击力。
+节奏富有变化，从慢到快再到高潮。
+画面呈现大气磅礴的气势。`,
+                prompt: `# 描述
+史诗大气的短视频，10秒，1080p
+
+# 素材
+@首帧 - 设定整体史诗画面的基础风格和色调
+
+# 参考
+- 视频语言：电影级运镜，包含推拉摇移、慢快节奏变化
+- 音频：史诗大气背景音乐`
+            },
+            vlog: {
+                duration: 5,
+                resolution: '720p',
+                bgm: 'chill',
+                description: `# Seedance 2.0 Case: Vlog 日常
+
+## 视频设置
+- 视频时长: 5秒
+- 分辨率: 720p (1280x720)
+
+## 音频配置
+- 背景音乐: 舒缓放松型
+
+## 创作要求
+创作一个轻松自然的Vlog日常视频。
+手持自然跟拍风格，包含生活化场景。
+节奏平缓自然，不要过度表演。`,
+                prompt: `# 描述
+轻松自然的Vlog，5秒，720p
+
+# 素材
+@首帧 - 设定自然生活化的基础风格
+
+# 参考
+- 视频语言：手持跟拍，自然流畅
+- 音频：舒缓放松背景`
+            },
+            cinematic: {
+                duration: 12,
+                resolution: '1080p',
+                bgm: 'cinematic',
+                description: `# Seedance 2.0 Case: 电影级
+
+## 视频设置
+- 视频时长: 12秒
+- 分辨率: 1080p (1920x1080)
+
+## 音频配置
+- 背景音乐: 电影感
+
+## 创作要求
+创作一个电影级的短视频。
+运镜采用电影级别手法，包含多种运镜技巧。
+有起承转合的节奏变化。
+可能包含多角色场景。
+
+情绪演绎准确，戏剧性强。`,
+                prompt: `# 描述
+电影级短视频，12秒，1080p
+
+# 素材
+@首帧 - 设定电影感的画面风格
+
+# 参考
+- 视频语言：电影运镜，复杂动作节奏
+- 音频：电影感背景音乐`
+            },
+            'music-video': {
+                duration: 7,
+                resolution: '720p',
+                bgm: 'upbeat',
+                description: `# Seedance 2.0 Case: 音乐视频
+
+## 视频设置
+- 视频时长: 7秒
+- 分辨率: 720p (1280x720)
+
+## 音频配置
+- 背景音乐: 轻快节奏
+
+## 创作要求
+制作一个律动感的音乐视频。
+节奏明快有力，配合音乐高潮。
+色彩鲜艳活泼，符合音乐风格。
+画面节奏感强。`,
+                prompt: `# 描述
+律动感音乐视频，7秒，720p
+
+# 素材
+@首帧 - 设定鲜艳活泼的画面风格
+
+# 参考
+- 视频语言：节奏化剪辑
+- 音频：轻快背景音乐`
+            }
+        };
+
+        // Load Case template
+        function loadCase(caseId) {
+            const caseConfig = casePrompts[caseId];
+            if (caseConfig) {
+                document.getElementById('manualPrompt').value = caseConfig.prompt.trim();
+                // Update duration display if needed
+                const durationMatch = caseConfig.prompt.match(/时长:\s*(\d+)/);
+                if (durationMatch) {
+                    document.getElementById('videoDuration').value = durationMatch[1];
+                    updateRangeValue('videoDuration');
+                }
+                alert('✅ 已加载 ' + caseConfig.description + ' Case 模板！');
+            } else {
+                alert('❌ 未找到该 Case 配置');
+            }
         }
 
-        // Initialize theme from localStorage
-        (function initTheme() {
-            const savedTheme = localStorage.getItem('seedance-theme') || 'dark';
-            document.body.setAttribute('data-theme', savedTheme);
-            document.getElementById('themeIcon').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
-        })();
+        // Generate prompt from inputs
+        function generatePrompt() {
+            const duration = document.getElementById('videoDuration').value;
+            const resolution = document.getElementById('videoResolution').value;
+            const bgmType = document.getElementById('bgmType').value;
+            const manualInput = document.getElementById('manualPrompt').value.trim();
 
-        // Initialize
-        selectTemplate('webapp');
+            let prompt = '';
+
+            // Check if manual input is provided
+            if (manualInput) {
+                prompt = manualInput;
+            } else {
+                // Generate based on settings
+                prompt = `# 视频设置
+- 时长: ${duration}秒
+- 分辨率: ${resolution}
+
+# 音频配置
+- 背景音乐: ${bgmType}
+
+# 描述
+创作一个${duration}秒的短视频，采用${resolution}分辨率。
+使用${bgmType}的背景音乐，营造相应的氛围。
+`;
+
+                // Add material references if any
+                const materialInput = document.getElementById('materialPromptOutput').value.trim();
+                if (materialInput) {
+                    prompt += '\n\n# 素材\n' + materialInput;
+                }
+            }
+
+            prompt += '\n\n---\n*本提示词基于即梦 Seedance 2.0 官方手册生成*\n*参考: https://bytedance.larkoffice.com/wiki/A5RHwWhoBiOnjukIIw6cu5ybnXQ';
+            }
+
+            document.getElementById('promptOutput').value = prompt;
+            switchTab('prompt');
+        }
+
+        // Copy prompt
+        function copyMaterialPrompt() {
+            const output = document.getElementById('materialPromptOutput');
+            if (output.value) {
+                navigator.clipboard.writeText(output.value).then(() => {
+                    alert('✅ 素材提示词已复制到剪贴板！');
+                });
+            }
+        }
     </script>
 </body>
 </html>
